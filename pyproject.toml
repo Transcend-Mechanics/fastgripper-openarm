@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ourgripper"            # placeholder — pick the real product name before PyPI
+version = "0.1.0"
+description = "Standalone control toolkit for the DM-J4310 worm-gear gripper (SocketCAN / gs_usb / slcan)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Proprietary" }   # decide before making the repo public
+dependencies = [
+    "python-can>=4.0",
+]
+
+[project.optional-dependencies]
+pad = ["pygame>=2.0"]          # gamepad mode of ourgripper-pad (keyboard mode needs nothing)
+usb = ["pyusb>=1.2"]           # only for gs_usb/candlelight USB adapters (macOS bench use)
+
+[project.scripts]
+ourgripper-autocal = "ourgripper.autocal:main"
+ourgripper-drive = "ourgripper.drive:main"
+ourgripper-pad = "ourgripper.pad:main"
+ourgripper-gui = "ourgripper.gui:main"
+ourgripper-doctor = "ourgripper.doctor:main"
+ourgripper-calibrate = "ourgripper.calibrate:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
