@@ -6,12 +6,12 @@ scripts). Velocity-mode MIT control with a software position loop; the worm
 gear holds position when we stop commanding.
 
 Usage:
-    ourgripper-drive 40                 # go to 40% closed (0=open, 100=closed)
-    ourgripper-drive 40 --interface socketcan --channel can1
+    fastgripper-drive 40                 # go to 40% closed (0=open, 100=closed)
+    fastgripper-drive 40 --interface socketcan --channel can1
 
 Safety: same rules as the other tools — calibrated cal entry required; the
 tool refuses to run if the restored position is outside the calibrated range
-(stale state -> run `ourgripper-autocal home` first, jaws empty).
+(stale state -> run `fastgripper-autocal home` first, jaws empty).
 """
 
 import argparse
@@ -39,7 +39,7 @@ def main() -> None:
     parser.add_argument("pct", type=float, help="target, 0=open .. 100=closed")
     parser.add_argument("--cal", default=None,
                         help="cal store path (default: ./gripper_cal.json if present, "
-                             "else ~/.config/ourgripper/)")
+                             "else ~/.config/fastgripper/)")
     parser.add_argument("--gripper", default=None, help="cal-store entry name")
     args = parser.parse_args()
     args.cal = args.cal or default_cal_path()
@@ -47,7 +47,7 @@ def main() -> None:
     store = load_store(args.cal)
     name, entry = get_entry(store, args.gripper)
     if entry.get("open") is None or entry.get("last_position") is None:
-        raise SystemExit(f"cal entry '{name}' incomplete — run ourgripper-autocal "
+        raise SystemExit(f"cal entry '{name}' incomplete — run fastgripper-autocal "
                          f"full (or home) first")
     motor_id, master_id = resolve_ids(args, entry)
     pct_goal = max(0.0, min(100.0, args.pct))
@@ -75,7 +75,7 @@ def main() -> None:
         if not (lo - 1.5 <= tracker.position <= hi + 1.5):
             motor.disable()
             raise SystemExit(f"restored position {tracker.position:+.1f} rad is outside "
-                             f"[{lo:+.1f}, {hi:+.1f}] — stale state; run ourgripper-autocal home")
+                             f"[{lo:+.1f}, {hi:+.1f}] — stale state; run fastgripper-autocal home")
 
         deadline = time.monotonic() + TIMEOUT_S
         stall_since = None

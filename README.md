@@ -1,4 +1,4 @@
-# ourgripper — DM-J4310 Worm-Gear Gripper Toolkit
+# fastgripper-openarm — DM-J4310 Worm-Gear Gripper Toolkit
 
 Standalone control for the worm-gear gripper: calibrate, home, and drive it
 over CAN. No ROS required; plain Python ≥ 3.10 over SocketCAN (Linux) or
@@ -6,24 +6,31 @@ gs_usb/slcan USB adapters (macOS bench use).
 
 ## Install
 
+The repo is private — install over SSH with a GitHub account that has access
+(we'll add you as a collaborator):
+
 ```bash
-pip install "git+https://github.com/<org>/ourgripper.git"          # core
-pip install "ourgripper[pad] @ git+https://github.com/<org>/ourgripper.git"  # + gamepad support
+pip install "git+ssh://git@github.com/Transcend-Mechanics/fastgripper-openarm.git"
+# with gamepad support:
+pip install "fastgripper-openarm[pad] @ git+ssh://git@github.com/Transcend-Mechanics/fastgripper-openarm.git"
 ```
+
+(HTTPS with a personal access token also works:
+`pip install "git+https://<token>@github.com/Transcend-Mechanics/fastgripper-openarm.git"`.)
 
 Python must be ≥ 3.10 (`python3 --version`; stock JetPack ships 3.8 — the
 scripts fail on it at import with `TypeError: unsupported operand type(s) for |`).
-`ourgripper-gui` additionally needs the system package `python3-tk`.
+`fastgripper-gui` additionally needs the system package `python3-tk`.
 
 ## Calibration data
 
 Tools look for `gripper_cal.json` in the current directory first, then
-`~/.config/ourgripper/gripper_cal.json`. Either place the calibration file
+`~/.config/fastgripper/gripper_cal.json`. Either place the calibration file
 we sent with your unit at one of those paths, or generate one against the
 hardstops (jaws empty!):
 
 ```bash
-ourgripper-autocal full --expected_span <rad from the unit label> \
+fastgripper-autocal full --expected_span <rad from the unit label> \
     --interface socketcan --channel canX
 ```
 
@@ -48,25 +55,25 @@ errors on every FD frame and can disrupt the other nodes. Always pass
 ## Use
 
 ```bash
-ourgripper-autocal home --interface socketcan --channel canX
+fastgripper-autocal home --interface socketcan --channel canX
     # ~20 s re-anchor against the closed stop. JAWS EMPTY. Run once after
     # unboxing, and any time behavior looks off.
-ourgripper-pad --keyboard --interface socketcan --channel canX
+fastgripper-pad --keyboard --interface socketcan --channel canX
     # hold a = open, d = close, space = stop, Ctrl-C = quit
-ourgripper-pad --interface socketcan --channel canX
+fastgripper-pad --interface socketcan --channel canX
     # gamepad: LT = open, RT = close, pressure = speed  (needs [pad] extra)
-ourgripper-drive 40 --interface socketcan --channel canX
-    # scriptable: go to 40% closed and exit — read src/ourgripper/drive.py
+fastgripper-drive 40 --interface socketcan --channel canX
+    # scriptable: go to 40% closed and exit — read src/fastgripper/drive.py
     # to embed the gripper in your own Python
-ourgripper-gui --interface socketcan --channel canX
+fastgripper-gui --interface socketcan --channel canX
     # Tk GUI (desktop session required)
-ourgripper-doctor --interface socketcan --channel canX
+fastgripper-doctor --interface socketcan --channel canX
     # no-motion diagnosis when position/state look wrong
 ```
 
 ## Safety
 
-- **Jaws empty for any `ourgripper-autocal` run** — an object in the jaws
+- **Jaws empty for any `fastgripper-autocal` run** — an object in the jaws
   gets squeezed or fakes a stall.
 - The worm gear holds position with the motor off: grip survives power cuts
   (feature) and will NOT release on power cut (hazard — run a tool to open).
@@ -83,9 +90,9 @@ ourgripper-doctor --interface socketcan --channel canX
 | "no feedback from motor" | 24 V, common CAN ground, channel name, `ip -details link show canX`, IDs on the unit label vs cal file |
 | worked yesterday, dead after reboot | rerun the `ip link set ... up` (not persistent) |
 | `ModuleNotFoundError: pygame` | install the `[pad]` extra, or use `--keyboard` |
-| tool refuses: "restored position ... stale state" | `ourgripper-autocal home` (jaws empty) |
-| close stops early / open overruns | same — that's the turn-alias symptom; `ourgripper-doctor` explains without moving the motor |
+| tool refuses: "restored position ... stale state" | `fastgripper-autocal home` (jaws empty) |
+| close stops early / open overruns | same — that's the turn-alias symptom; `fastgripper-doctor` explains without moving the motor |
 | probe aborts on free-run torque | per-unit friction: read the printed free-run median/p95 and set `--contact_torque` just above the p95 |
 
-`ourgripper-calibrate` (keyboard jog, mark endpoints by eye, real TTY
+`fastgripper-calibrate` (keyboard jog, mark endpoints by eye, real TTY
 required) is the manual fallback if autocal can't be tuned for your unit.

@@ -54,7 +54,7 @@ def read_key() -> str | None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     add_bus_args(parser)
-    parser.add_argument("--cal", default=None, help="cal store path (default: ./gripper_cal.json if present, else ~/.config/ourgripper/)")
+    parser.add_argument("--cal", default=None, help="cal store path (default: ./gripper_cal.json if present, else ~/.config/fastgripper/)")
     parser.add_argument("--gripper", default=None,
                         help="entry name in the cal file (default: the existing entry "
                              "when there is exactly one, else 'default')")

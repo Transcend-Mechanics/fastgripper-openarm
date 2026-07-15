@@ -183,7 +183,7 @@ class GripperLink:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     add_bus_args(parser)
-    parser.add_argument("--cal", default=None, help="cal store path (default: ./gripper_cal.json if present, else ~/.config/ourgripper/)")
+    parser.add_argument("--cal", default=None, help="cal store path (default: ./gripper_cal.json if present, else ~/.config/fastgripper/)")
     parser.add_argument("--gripper", default=None,
                         help="cal entry name (optional if the file has exactly one)")
     args = parser.parse_args()

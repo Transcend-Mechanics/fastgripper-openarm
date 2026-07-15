@@ -30,7 +30,7 @@ def default_cal_path() -> str:
     config dir — so pip-installed console commands work from any directory."""
     if os.path.exists("gripper_cal.json"):
         return "gripper_cal.json"
-    return os.path.join(os.path.expanduser("~"), ".config", "ourgripper", "gripper_cal.json")
+    return os.path.join(os.path.expanduser("~"), ".config", "fastgripper", "gripper_cal.json")
 
 
 def load_store(path: str) -> dict:

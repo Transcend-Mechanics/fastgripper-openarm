@@ -201,7 +201,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     add_bus_args(parser)
-    parser.add_argument("--cal", default=None, help="cal store path (default: ./gripper_cal.json if present, else ~/.config/ourgripper/)")
+    parser.add_argument("--cal", default=None, help="cal store path (default: ./gripper_cal.json if present, else ~/.config/fastgripper/)")
     parser.add_argument("--gripper", action="append", default=None,
                         help="cal entry name; repeat for two grippers "
                              "(g1 = triggers, g2 = bumpers)")
