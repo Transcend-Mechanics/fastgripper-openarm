@@ -6,17 +6,13 @@ gs_usb/slcan USB adapters (macOS bench use).
 
 ## Install
 
-The repo is private — install over SSH with a GitHub account that has access
-(we'll add you as a collaborator):
-
 ```bash
-pip install "git+ssh://git@github.com/Transcend-Mechanics/fastgripper-openarm.git"
-# with gamepad support:
-pip install "fastgripper-openarm[pad] @ git+ssh://git@github.com/Transcend-Mechanics/fastgripper-openarm.git"
+pip install fastgripper-openarm            # core
+pip install "fastgripper-openarm[pad]"     # + gamepad support
 ```
 
-(HTTPS with a personal access token also works:
-`pip install "git+https://<token>@github.com/Transcend-Mechanics/fastgripper-openarm.git"`.)
+(Bleeding edge, with repo access:
+`pip install "git+ssh://git@github.com/Transcend-Mechanics/fastgripper-openarm.git"`.)
 
 Python must be ≥ 3.10 (`python3 --version`; stock JetPack ships 3.8 — the
 scripts fail on it at import with `TypeError: unsupported operand type(s) for |`).
