@@ -5,10 +5,7 @@ trusts this repo's `release.yml` directly; no API tokens anywhere).
 
 ## Before any of this matters
 
-Two decisions are still open (flagged in `pyproject.toml`):
 - **License** — Apache-2.0 (decided 2026-07-19, matching fastgripper-lerobot).
-  Publishing to PyPI with a proprietary license is legal but unusual; decide
-  deliberately.
 - The repo is **private** today. Trusted publishing works from private repos,
   but a PyPI release makes the *package* public worldwide even if the source
   stays private. Until then, the friend installs via
