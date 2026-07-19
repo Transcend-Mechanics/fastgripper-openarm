@@ -9,9 +9,16 @@ description = "Standalone control toolkit for the DM-J4310 worm-gear FastGripper
 readme = "README.md"
 authors = [{ name = "Transcend Mechanics" }]
 requires-python = ">=3.10"
-license = { text = "Proprietary" }   # DECIDE before PyPI/public (sister repo fastgripper-lerobot uses Apache-2.0)
+license = { file = "LICENSE" }   # Apache-2.0, matching fastgripper-lerobot
 dependencies = [
     "python-can>=4.0",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering",
+    "Framework :: Robot Framework :: Library",
 ]
 
 [project.urls]
