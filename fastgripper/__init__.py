@@ -12,7 +12,7 @@ Library use:
     from fastgripper import DM4310, MultiTurnTracker, load_store
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.0.dev0"  # keep in sync with pyproject.toml
 
 from .calstore import default_cal_path, get_entry, load_store, resolve_ids, save_store
 from .canbus import add_bus_args, open_bus

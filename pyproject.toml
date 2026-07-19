@@ -4,14 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fastgripper-openarm"
-version = "0.1.0"
-description = "Standalone control toolkit for the DM-J4310 worm-gear gripper (SocketCAN / gs_usb / slcan)"
+version = "0.1.0.dev0"    # first PyPI release becomes 0.1.0 (house convention)
+description = "Standalone control toolkit for the DM-J4310 worm-gear FastGripper (SocketCAN / gs_usb / slcan)"
 readme = "README.md"
+authors = [{ name = "Transcend Mechanics" }]
 requires-python = ">=3.10"
-license = { text = "Proprietary" }   # decide before making the repo public
+license = { text = "Proprietary" }   # DECIDE before PyPI/public (sister repo fastgripper-lerobot uses Apache-2.0)
 dependencies = [
     "python-can>=4.0",
 ]
+
+[project.urls]
+Repository = "https://github.com/Transcend-Mechanics/fastgripper-openarm"
 
 [project.optional-dependencies]
 pad = ["pygame>=2.0"]          # gamepad mode of fastgripper-pad (keyboard mode needs nothing)
@@ -26,4 +30,4 @@ fastgripper-doctor = "fastgripper.doctor:main"
 fastgripper-calibrate = "fastgripper.calibrate:main"
 
 [tool.setuptools.packages.find]
-where = ["src"]
+include = ["fastgripper*"]

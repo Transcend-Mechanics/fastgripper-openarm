@@ -1,0 +1,26 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  package-smoke:
+    # Build the wheel, install it in a clean venv, exercise every console
+    # entry point and the library import — catches packaging breakage on
+    # every push without publishing anything.
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.10", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - run: uv build
+      - run: |
+          uv venv smoke --python ${{ matrix.python }}
+          uv pip install -p smoke/bin/python dist/*.whl
+          for cmd in fastgripper-autocal fastgripper-drive fastgripper-pad fastgripper-doctor fastgripper-calibrate; do
+            smoke/bin/$cmd --help > /dev/null
+          done
+          smoke/bin/python -c "import fastgripper; print(fastgripper.__version__, fastgripper.default_cal_path())"
