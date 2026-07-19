@@ -4,6 +4,10 @@ Standalone control for the worm-gear gripper: calibrate, home, and drive it
 over CAN. No ROS required; plain Python ≥ 3.10 over SocketCAN (Linux) or
 gs_usb/slcan USB adapters (macOS bench use).
 
+**New here? Start with [docs/QUICKSTART.md](docs/QUICKSTART.md)** — parts to
+working gripper in ~30 minutes (the gripper ships without an actuator; you
+supply a Damiao DM-J4310).
+
 ## Install
 
 ```bash
@@ -21,12 +25,11 @@ scripts fail on it at import with `TypeError: unsupported operand type(s) for |`
 ## Calibration data
 
 Tools look for `gripper_cal.json` in the current directory first, then
-`~/.config/fastgripper/gripper_cal.json`. Either place the calibration file
-we sent with your unit at one of those paths, or generate one against the
-hardstops (jaws empty!):
+`~/.config/fastgripper/gripper_cal.json`. Generate it once per assembly by
+probing the hardstops (jaws empty!):
 
 ```bash
-fastgripper-autocal full --expected_span <rad from the unit label> \
+fastgripper-autocal full --expected_span <rad, from your gripper's label / product page> \
     --interface socketcan --channel canX
 ```
 
@@ -42,11 +45,13 @@ USB-CAN adapter created (do NOT assume `can1` — plug/unplug and watch
 sudo ip link set canX up type can bitrate 1000000   # rerun after every reboot
 ```
 
-Sharing an existing classic-CAN bus instead: stub < 30 cm, no extra
-terminator mid-bus; the gripper's IDs (unit label; default 0x20/0x30) avoid
-OpenArm's 0x01–0x08/0x11–0x18. Never share a CAN FD bus — a classic device
-errors on every FD frame and can disrupt the other nodes. Always pass
-`--interface socketcan --channel canX` explicitly.
+Sharing an existing classic-CAN bus instead: the motor must be re-ID'd
+off-bus first — a factory DM-J4310 (ID 0x01) collides with OpenArm's joint 1
+(their map is 0x01–0x08/0x11–0x18). Wiring: stub < 30 cm, no extra
+terminator mid-bus. Never share a CAN FD bus — a classic device errors on
+every FD frame and can disrupt the other nodes. Always pass
+`--interface socketcan --channel canX` explicitly. On a dedicated channel a
+factory motor needs no configuration at all.
 
 ## Use
 
@@ -83,7 +88,7 @@ fastgripper-doctor --interface socketcan --channel canX
 | Symptom | Do this |
 |---|---|
 | `TypeError: unsupported operand type(s) for \|` at import | Python < 3.10 — see Install |
-| "no feedback from motor" | 24 V, common CAN ground, channel name, `ip -details link show canX`, IDs on the unit label vs cal file |
+| "no feedback from motor" | 24 V, common CAN ground, channel name, `ip -details link show canX`, motor IDs vs cal file (factory motor = 0x01/0x00) |
 | worked yesterday, dead after reboot | rerun the `ip link set ... up` (not persistent) |
 | `ModuleNotFoundError: pygame` | install the `[pad]` extra, or use `--keyboard` |
 | tool refuses: "restored position ... stale state" | `fastgripper-autocal home` (jaws empty) |
