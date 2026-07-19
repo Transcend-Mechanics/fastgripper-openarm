@@ -64,7 +64,7 @@ fastgripper-pad --keyboard --interface socketcan --channel canX
 fastgripper-pad --interface socketcan --channel canX
     # gamepad: LT = open, RT = close, pressure = speed  (needs [pad] extra)
 fastgripper-drive 40 --interface socketcan --channel canX
-    # scriptable: go to 40% closed and exit — read src/fastgripper/drive.py
+    # scriptable: go to 40% closed and exit — read fastgripper/drive.py
     # to embed the gripper in your own Python
 fastgripper-gui --interface socketcan --channel canX
     # Tk GUI (desktop session required)
