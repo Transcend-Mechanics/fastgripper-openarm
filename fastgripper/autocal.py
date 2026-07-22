@@ -151,6 +151,13 @@ class Rig:
                         contact_torque=seek_thresh)
         self.move_by(-direction * self.args.backoff, f"{label} back-off")
         t2 = self.probe(direction, f"{label} touch")
+        if self.args.single_touch:
+            # trust the slow touch without the agreement check (toggle for
+            # high/lumpy-friction units where the check keeps false-aborting)
+            if abs(t1 - t2) > self.args.touch_tol:
+                print(f"    note: seek/touch disagree by {abs(t1 - t2):.3f} rad "
+                      f"(--single_touch: accepting the slow touch)")
+            return t2
         if abs(t1 - t2) > self.args.touch_tol:
             raise Abort(f"{label}: touches disagree by {abs(t1 - t2):.3f} rad "
                         f"(> {self.args.touch_tol}) — soft obstruction or debris? "
@@ -205,6 +212,17 @@ def main() -> None:
                         help="abort if a single probe travels farther than this, rad")
     parser.add_argument("--probe_timeout", type=float, default=90.0, help="s per probe")
     parser.add_argument("--yes", action="store_true", help="skip the jaws-empty prompt")
+    parser.add_argument("--single_touch", action="store_true",
+                        help="skip the double-touch agreement check; the slow touch "
+                             "is the datum (for lumpy-friction units that false-abort)")
+    parser.add_argument("--closed_only", action="store_true",
+                        help="full mode: probe ONLY the closed stop; derive the open "
+                             "mark as closed - close_dir * --span_from_closed "
+                             "(no traverse to the open end)")
+    parser.add_argument("--span_from_closed", type=float, default=33.5,
+                        help="rad of usable range assumed below the closed mark when "
+                             "--closed_only (MUST be a conservative underestimate of "
+                             "the real travel, or 0%% commands drive into the open stop)")
     args = parser.parse_args()
     args.cal = args.cal or default_cal_path()
 
@@ -299,6 +317,27 @@ def main() -> None:
                 cal["homed_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
                 print(f"re-anchored: last_position={cal['last_position']:+.3f} rad "
                       f"(offset {offset:+.3f})")
+            elif args.closed_only:
+                closed_mark = stop_closed - d * args.margin
+                open_mark = closed_mark - d * args.span_from_closed
+                print(f"closed-only: open mark derived at {open_mark:+.3f} rad "
+                      f"(closed {closed_mark:+.3f} - {args.span_from_closed} rad)")
+                cal.update(
+                    motor_id=motor_id, master_id=master_id, close_dir=d,
+                    open=open_mark, closed=closed_mark,
+                    span=args.span_from_closed,
+                    stop_closed=stop_closed,
+                    # open stop never measured; recorded as the derived mark
+                    # minus margin so range guards stay conservative
+                    stop_open=open_mark - d * args.margin,
+                    stop_span=args.span_from_closed + 2 * args.margin,
+                    method="autocal_closed_only",
+                    calibrated_at=time.strftime("%Y-%m-%d %H:%M:%S"),
+                )
+                # park at the closed mark (we're at the stop; back off margin)
+                rig.move_by(-d * args.margin, "park at closed mark")
+                cal["last_position"] = rig.tracker.position
+                cal["last_wrapped"] = rig.tracker.wrapped
             else:
                 rig.move_by(-d * args.backoff, "leave closed stop")
                 print("traversing to open stop...")
