@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fastgripper-openarm"
-version = "0.1.0"
+version = "0.1.1"
 description = "Standalone control toolkit for the DM-J4310 worm-gear FastGripper (SocketCAN / gs_usb / slcan)"
 readme = "README.md"
 authors = [{ name = "Transcend Mechanics" }]
@@ -29,12 +29,12 @@ pad = ["pygame>=2.0"]          # gamepad mode of fastgripper-pad (keyboard mode 
 usb = ["pyusb>=1.2"]           # only for gs_usb/candlelight USB adapters (macOS bench use)
 
 [project.scripts]
-fastgripper-autocal = "fastgripper.autocal:main"
-fastgripper-drive = "fastgripper.drive:main"
-fastgripper-pad = "fastgripper.pad:main"
-fastgripper-gui = "fastgripper.gui:main"
-fastgripper-doctor = "fastgripper.doctor:main"
-fastgripper-calibrate = "fastgripper.calibrate:main"
+fastgripper-autocal = "fastgripper.autocal:cli"
+fastgripper-drive = "fastgripper.drive:cli"
+fastgripper-pad = "fastgripper.pad:cli"
+fastgripper-gui = "fastgripper.gui:cli"
+fastgripper-doctor = "fastgripper.doctor:cli"
+fastgripper-calibrate = "fastgripper.calibrate:cli"
 
 [tool.setuptools.packages.find]
 include = ["fastgripper*"]

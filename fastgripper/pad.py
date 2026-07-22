@@ -322,3 +322,9 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+def cli() -> None:
+    """Console-script entry: main() + fast exit (see fastgripper/_cli.py)."""
+    from ._cli import run
+    run(main)

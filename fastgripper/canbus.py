@@ -62,19 +62,57 @@ def open_bus(interface: str = "auto", channel: str | None = None) -> can.BusABC:
         usb.core.Device.detach_kernel_driver = _safe_detach
         usb.core.Device.is_kernel_driver_active = _safe_active
 
-        # Hard-reset first: clears any wedged state from a previous session.
-        for vid, pid in [(0x1D50, 0x606F), (0x1209, 0x2323)]:
-            dev = usb.core.find(idVendor=vid, idProduct=pid)
-            if dev is not None:
-                try:
-                    dev.reset()
-                except usb.core.USBError:
-                    pass
-                usb.util.dispose_resources(dev)
-                time.sleep(1.5)
-                break
+        def _bus_alive(bus) -> bool:
+            """Send a harmless frame to an unused ID; our own TX echo coming
+            back means it was ACKed on the wire -- the pipeline works."""
+            try:
+                bus.send(can.Message(arbitration_id=0x40, data=[0xFF] * 7 + [0xFD],
+                                     is_extended_id=False))
+            except can.CanError:
+                return False
+            t0 = time.time()
+            while time.time() - t0 < 0.5:
+                m = bus.recv(timeout=0.05)
+                if m is not None and not m.is_rx:
+                    return True
+            return False
 
-        return can.Bus(interface="gs_usb", channel=channel or 0, index=0, bitrate=1_000_000)
+        def _arm_drain_on_shutdown(bus) -> None:
+            """Read the device dry before stopping the channel. Closing a
+            candlelight adapter with unread frames in its USB pipeline wedges
+            its TX path until a physical replug (hardware-validated
+            2026-07-21). Every session must close clean."""
+            orig_shutdown = bus.shutdown
+
+            def drain_and_shutdown(*a, **kw):
+                try:
+                    t0 = time.time()
+                    while time.time() - t0 < 1.0:
+                        if bus.recv(timeout=0.05) is None:
+                            break  # quiet: pipeline drained
+                except Exception:
+                    pass
+                orig_shutdown(*a, **kw)
+
+            bus.shutdown = drain_and_shutdown
+
+        # NEVER software-reset the adapter: dev.reset() can knock it off the
+        # USB bus entirely on macOS ([Errno 19] until physical replug). Open,
+        # verify frames actually flow, and report honestly if they don't.
+        bus = can.Bus(interface="gs_usb", channel=channel or 0, index=0, bitrate=1_000_000)
+        if not _bus_alive(bus):
+            try:
+                bus.shutdown()
+            except Exception:
+                pass
+            raise SystemExit(
+                "bus opened but passes NO frames (no TX echo -- nothing ACKs).\n"
+                "Physical recovery required:\n"
+                "  1. unplug/replug the adapter USB (LED green at rest)\n"
+                "  2. if motors show flashing LEDs, power-cycle the 24V supply\n"
+                "then rerun.")
+        _arm_drain_on_shutdown(bus)
+        return bus
 
     raise SystemExit(f"unsupported interface: {interface}")
 
